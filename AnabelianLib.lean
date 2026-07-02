@@ -2,3 +2,4 @@ import AnabelianLib.Framework.HomForm
 import AnabelianLib.Framework.IsoForm
 import AnabelianLib.Framework.Reconstruction
 import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CompIso

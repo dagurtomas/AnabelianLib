@@ -5,6 +5,7 @@ Authors: Dagur Asgeirsson
 -/
 
 import AnabelianLib.Framework.Reconstruction
+import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CompIso
 
 
 /-!
@@ -56,66 +57,6 @@ noncomputable def toReconstruction : ProfunctorReconstruction geom data where
   decodeIso := P.homIso
 
 end HomFormPackage
-
-/-- Whisker an isomorphism of profunctors on the left. -/
-private noncomputable def profunctorWhiskerLeftIso {A B C : Type (u + 1)}
-    [Category.{u} A] [Category.{u} B] [Category.{u} C]
-    (P : Profunctor.{u + 1} A B)
-    {Q R : Profunctor.{u + 1} B C} (e : Q ≅ R) :
-    P.comp.{u + 1} Q ≅ P.comp.{u + 1} R where
-  hom := P.whiskerLeft e.hom
-  inv := P.whiskerLeft e.inv
-  hom_inv_id := by simp [← Profunctor.whiskerLeft_comp]
-  inv_hom_id := by simp [← Profunctor.whiskerLeft_comp]
-
-/-- Whisker an isomorphism of profunctors on the right. -/
-private noncomputable def profunctorWhiskerRightIso {A B C : Type (u + 1)}
-    [Category.{u} A] [Category.{u} B] [Category.{u} C]
-    {P Q : Profunctor.{u + 1} A B}
-    (R : Profunctor.{u + 1} B C) (e : P ≅ Q) :
-    P.comp.{u + 1} R ≅ Q.comp.{u + 1} R where
-  hom := Profunctor.whiskerRight R e.hom
-  inv := Profunctor.whiskerRight R e.inv
-  hom_inv_id := by simp [← Profunctor.comp_whiskerRight]
-  inv_hom_id := by simp [← Profunctor.comp_whiskerRight]
-
-set_option backward.defeqAttrib.useBackward true in
-set_option backward.isDefEq.respectTransparency false in
-/-- The right unitor for composition with the universe-lifted identity profunctor. -/
-private noncomputable def profunctorRightUnitorUlift {A B : Type (u + 1)}
-    [Category.{u} A] [Category.{u} B] (P : Profunctor.{u + 1} A B) :
-    P.comp.{u + 1} (Profunctor.id (C := B)).ulift1 ≅ P :=
-  NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ {
-    hom := ↾Quot.lift (fun ⟨d, x, f⟩ ↦ (P.obj X).map f.down.op x) fun _ _ h ↦ by
-      cases h
-      simp [Profunctor.compDiagram]
-    inv := ↾fun x ↦ Quot.mk _ ⟨Y.unop, x, ULift.up (𝟙 Y.unop)⟩
-    hom_inv_id := by
-      ext z
-      induction z using Quot.inductionOn with
-      | h z =>
-        rcases z with ⟨d, x, f⟩
-        rcases f with ⟨f⟩
-        change Y.unop ⟶ d at f
-        apply Quot.sound
-        rw [CategoryTheory.Limits.Types.coendRel_iff]
-        refine ⟨f, ⟨x, ULift.up (𝟙 Y.unop)⟩, ?_, ?_⟩
-        · rfl
-        · apply Prod.ext
-          · rfl
-          · apply congrArg ULift.up
-            simp
-    inv_hom_id := by
-      ext x
-      simp [CategoryTheory.Limits.Types.chosenCoend_def] })
-    (fun f ↦ by
-      dsimp
-      ext
-      simp [Profunctor.compDiagram, CategoryTheory.Limits.chosenCoend.ι_apply _]))
-    (fun f ↦ by
-      ext _ ⟨_, _⟩
-      simp [CategoryTheory.Limits.Types.chosenCoend_def,
-        CategoryTheory.Limits.chosenCoend.map_apply])
 
 /-- Hom-form reconstruction data for a strict covariant invariant functor. -/
 structure RepresentableHomFormPackage
@@ -377,8 +318,8 @@ noncomputable def representableThroughGeom (G : geom' ⥤ geom) [G.Full] [G.Fait
   homEquiv_apply f := P.homEquiv_apply (G.map f)
 
 /--
-Turn a representable Hom-form package into a profunctor-first package after replacing the geometric
-category along a full faithful functor `G : geom' ⥤ geom`.
+Turn a representable Hom-form package into a profunctor-first package after replacing the
+geometric category along a full faithful functor `G : geom' ⥤ geom`.
 -/
 noncomputable def toHomFormPackageThroughGeom (G : geom' ⥤ geom) [G.Full] [G.Faithful] :
     HomFormPackage geom' data :=
@@ -539,10 +480,10 @@ noncomputable def coYonedaDataHomIsoThroughFunctor (I : geom ⥤ data) (F : data
   let D := representedAlgorithm I
   exact
     (A.associator B (C.comp D)) ≪≫
-    profunctorWhiskerLeftIso A (B.associator C D).symm ≪≫
+    Profunctor.whiskerLeftIso A (B.associator C D).symm ≪≫
     (A.associator (B.comp C) D).symm ≪≫
-    profunctorWhiskerRightIso D (profunctorWhiskerLeftIso A (fullEssSurjDensityIso F)) ≪≫
-    profunctorWhiskerRightIso D (profunctorRightUnitorUlift A) ≪≫
+    Profunctor.whiskerRightIso D (Profunctor.whiskerLeftIso A (fullEssSurjDensityIso F)) ≪≫
+    Profunctor.whiskerRightIso D (Profunctor.rightUnitorUlift A) ≪≫
     coYonedaDataHomIso I
 
 /--
