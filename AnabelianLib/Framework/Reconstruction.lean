@@ -62,8 +62,9 @@ def dataHomProfunctor (I : geom ⥤ data) : Profunctor.{u + 1} geom geom :=
 /--
 A reconstruction theorem as an isomorphism of profunctors.
 
-`invariant` is the available invariant of geometric objects, `algorithm` is a data-internal
-procedure, and `target` is the geometric profunctor being reconstructed.
+`invariant` is the group-theoretic invariant of geometric objects, `algorithm` is a profunctor in
+the other direction, and `target` is the geometric profunctor being reconstructed (most often the
+identity).
 -/
 structure ProfunctorReconstruction
     (geom : Type (u + 1)) (data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
@@ -71,9 +72,9 @@ structure ProfunctorReconstruction
   invariant : Profunctor.{u + 1} geom data
   /-- The geometric profunctor being reconstructed. -/
   target : Profunctor.{u + 1} geom geom
-  /-- The data-internal reconstruction algorithm. -/
+  /-- The reconstruction algorithm. -/
   algorithm : Profunctor.{u + 1} data geom
-  /-- Soundness and completeness as a profunctor isomorphism. -/
+  /-- The isomorphism from the composition of the invariant and the algorithm to the target. -/
   decodeIso : invariant.comp.{u + 1} algorithm ≅ target
 
 namespace ProfunctorReconstruction

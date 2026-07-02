@@ -10,9 +10,10 @@ import AnabelianLib.Framework.Reconstruction
 /-!
 # Hom-form reconstruction packages
 
-The primary Hom-form package is profunctor-first: an invariant profunctor and an algorithm
-profunctor reconstruct the identity Hom profunctor.  Strict covariant invariant functors are a
-representable special case, packaged separately by `RepresentableHomFormPackage`.
+The primary Hom-form package is the data of a profunctor `invariant` and `algorithm`
+in opposite directions, reconstruct the identity Hom profunctor.
+Strict covariant invariant functors are a representable special case, packaged separately by
+`RepresentableHomFormPackage`.
 -/
 
 
@@ -33,16 +34,15 @@ private lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
   simp [CategoryTheory.Limits.Types.chosenCoend_def,
     CategoryTheory.Limits.chosenCoend.map_apply]
 
-/-- Hom-form reconstruction data in fully profunctorial form. -/
+/-- Hom-form reconstruction data. -/
 structure HomFormPackage
     (geom : Type (u + 1)) (data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
-  /-- The invariant profunctor. -/
-  invariant : CategoryTheory.Profunctor.{u + 1} geom data
-  /-- The data-internal reconstruction algorithm. -/
-  algorithm : CategoryTheory.Profunctor.{u + 1} data geom
+  /-- The "invariant" profunctor. -/
+  invariant : Profunctor.{u + 1} geom data
+  /-- The reconstruction algorithm. -/
+  algorithm : Profunctor.{u + 1} data geom
   /-- The Hom-form reconstruction isomorphism. -/
-  homIso : invariant.comp.{u + 1} algorithm ≅
-    CategoryTheory.Profunctor.id.ulift1
+  homIso : invariant.comp.{u + 1} algorithm ≅ Profunctor.id.ulift1
 
 namespace HomFormPackage
 
@@ -51,7 +51,7 @@ variable (P : HomFormPackage geom data)
 /-- A Hom-form package as a general profunctor reconstruction theorem. -/
 noncomputable def toReconstruction : ProfunctorReconstruction geom data where
   invariant := P.invariant
-  target := CategoryTheory.Profunctor.id.ulift1
+  target := Profunctor.id.ulift1
   algorithm := P.algorithm
   decodeIso := P.homIso
 
@@ -60,35 +60,35 @@ end HomFormPackage
 /-- Whisker an isomorphism of profunctors on the left. -/
 private noncomputable def profunctorWhiskerLeftIso {A B C : Type (u + 1)}
     [Category.{u} A] [Category.{u} B] [Category.{u} C]
-    (P : CategoryTheory.Profunctor.{u + 1} A B)
-    {Q R : CategoryTheory.Profunctor.{u + 1} B C} (e : Q ≅ R) :
+    (P : Profunctor.{u + 1} A B)
+    {Q R : Profunctor.{u + 1} B C} (e : Q ≅ R) :
     P.comp.{u + 1} Q ≅ P.comp.{u + 1} R where
   hom := P.whiskerLeft e.hom
   inv := P.whiskerLeft e.inv
-  hom_inv_id := by simp [← CategoryTheory.Profunctor.whiskerLeft_comp]
-  inv_hom_id := by simp [← CategoryTheory.Profunctor.whiskerLeft_comp]
+  hom_inv_id := by simp [← Profunctor.whiskerLeft_comp]
+  inv_hom_id := by simp [← Profunctor.whiskerLeft_comp]
 
 /-- Whisker an isomorphism of profunctors on the right. -/
 private noncomputable def profunctorWhiskerRightIso {A B C : Type (u + 1)}
     [Category.{u} A] [Category.{u} B] [Category.{u} C]
-    {P Q : CategoryTheory.Profunctor.{u + 1} A B}
-    (R : CategoryTheory.Profunctor.{u + 1} B C) (e : P ≅ Q) :
+    {P Q : Profunctor.{u + 1} A B}
+    (R : Profunctor.{u + 1} B C) (e : P ≅ Q) :
     P.comp.{u + 1} R ≅ Q.comp.{u + 1} R where
-  hom := CategoryTheory.Profunctor.whiskerRight R e.hom
-  inv := CategoryTheory.Profunctor.whiskerRight R e.inv
-  hom_inv_id := by simp [← CategoryTheory.Profunctor.comp_whiskerRight]
-  inv_hom_id := by simp [← CategoryTheory.Profunctor.comp_whiskerRight]
+  hom := Profunctor.whiskerRight R e.hom
+  inv := Profunctor.whiskerRight R e.inv
+  hom_inv_id := by simp [← Profunctor.comp_whiskerRight]
+  inv_hom_id := by simp [← Profunctor.comp_whiskerRight]
 
 set_option backward.defeqAttrib.useBackward true in
 set_option backward.isDefEq.respectTransparency false in
 /-- The right unitor for composition with the universe-lifted identity profunctor. -/
 private noncomputable def profunctorRightUnitorUlift {A B : Type (u + 1)}
-    [Category.{u} A] [Category.{u} B] (P : CategoryTheory.Profunctor.{u + 1} A B) :
-    P.comp.{u + 1} (CategoryTheory.Profunctor.id (C := B)).ulift1 ≅ P :=
+    [Category.{u} A] [Category.{u} B] (P : Profunctor.{u + 1} A B) :
+    P.comp.{u + 1} (Profunctor.id (C := B)).ulift1 ≅ P :=
   NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ {
     hom := ↾Quot.lift (fun ⟨d, x, f⟩ ↦ (P.obj X).map f.down.op x) fun _ _ h ↦ by
       cases h
-      simp [CategoryTheory.Profunctor.compDiagram]
+      simp [Profunctor.compDiagram]
     inv := ↾fun x ↦ Quot.mk _ ⟨Y.unop, x, ULift.up (𝟙 Y.unop)⟩
     hom_inv_id := by
       ext z
@@ -111,7 +111,7 @@ private noncomputable def profunctorRightUnitorUlift {A B : Type (u + 1)}
     (fun f ↦ by
       dsimp
       ext
-      simp [CategoryTheory.Profunctor.compDiagram, CategoryTheory.Limits.chosenCoend.ι_apply _]))
+      simp [Profunctor.compDiagram, CategoryTheory.Limits.chosenCoend.ι_apply _]))
     (fun f ↦ by
       ext _ ⟨_, _⟩
       simp [CategoryTheory.Limits.Types.chosenCoend_def,
@@ -145,15 +145,15 @@ theorem natural_right {X Y Y' : geom} (f : Y ⟶ X) (g : Y' ⟶ Y) :
   simp [P.homEquiv_apply]
 
 /-- The invariant profunctor represented by `P.I`. -/
-abbrev invariant : CategoryTheory.Profunctor.{u + 1} geom data :=
+abbrev invariant : Profunctor.{u + 1} geom data :=
   representedInvariant P.I
 
 /-- The canonical Hom-form algorithm: data morphisms out of the invariant object. -/
-abbrev algorithm : CategoryTheory.Profunctor.{u + 1} data geom :=
+abbrev algorithm : Profunctor.{u + 1} data geom :=
   representedAlgorithm P.I
 
 /-- The data-Hom profunctor associated to `P.I`. -/
-abbrev dataHom : CategoryTheory.Profunctor.{u + 1} geom geom :=
+abbrev dataHom : Profunctor.{u + 1} geom geom :=
   dataHomProfunctor P.I
 
 set_option backward.defeqAttrib.useBackward true in
@@ -178,7 +178,7 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
           change ULift.{u + 1, u} (_ ⟶ I.obj X) at a
           change ULift.{u + 1, u} (I.obj Y.unop ⟶ _) at b
           dsimp at a b
-          dsimp [CategoryTheory.Profunctor.compDiagram]
+          dsimp [Profunctor.compDiagram]
           rw [Category.assoc])
     inv := ↾fun a ↦
       Quot.mk _ ⟨I.obj X, (ULift.up (𝟙 _), ULift.up a.down)⟩
@@ -203,12 +203,12 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
         apply Quot.sound
         rw [CategoryTheory.Limits.Types.coendRel_iff]
         refine ⟨a.down, (ULift.up (𝟙 _), b), ?_, ?_⟩
-        · dsimp [CategoryTheory.Profunctor.compDiagram]
+        · dsimp [Profunctor.compDiagram]
           apply Prod.ext
           · rcases a with ⟨a⟩
             exact congr_arg ULift.up (Category.comp_id a)
           · rfl
-        · dsimp [CategoryTheory.Profunctor.compDiagram]
+        · dsimp [Profunctor.compDiagram]
     inv_hom_id := by
       ext a
       rcases a with ⟨a⟩
@@ -221,10 +221,10 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
         rcases z with ⟨d, a, b⟩
         change ULift.{u + 1, u} (d ⟶ I.obj X) at a
         change ULift.{u + 1, u} (I.obj Y.unop ⟶ d) at b
-        simp only [CategoryTheory.Profunctor.comp_obj_map, dataHomProfunctor_obj_map]
+        simp only [Profunctor.comp_obj_map, dataHomProfunctor_obj_map]
         dsimp
         rw [chosenCoendMap_mk]
-        dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
+        dsimp [Profunctor.compDiagramMap, Profunctor.compDiagram]
         simp))
     (by
       intro X X' f
@@ -234,15 +234,15 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
         rcases z with ⟨d, a, b⟩
         change ULift.{u + 1, u} (d ⟶ I.obj X) at a
         change ULift.{u + 1, u} (I.obj Y.unop ⟶ d) at b
-        simp only [CategoryTheory.NatTrans.comp_app, CategoryTheory.Profunctor.comp_map_app,
+        simp only [CategoryTheory.NatTrans.comp_app, Profunctor.comp_map_app,
           dataHomProfunctor_map_app]
         dsimp
         rw [chosenCoendMap_mk]
-        dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
+        dsimp [Profunctor.compDiagramMap, Profunctor.compDiagram]
         simp)
 
 /-- The objectwise Hom-form theorem as an isomorphism of profunctors. -/
-noncomputable def dataHomToIdIso : P.dataHom ≅ CategoryTheory.Profunctor.id.ulift1 :=
+noncomputable def dataHomToIdIso : P.dataHom ≅ Profunctor.id.ulift1 :=
   NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ {
     hom := ↾fun a ↦ ULift.up ((P.homEquiv X Y.unop).symm a.down)
     inv := ↾fun f ↦ ULift.up (P.homEquiv X Y.unop f.down)
@@ -257,8 +257,8 @@ noncomputable def dataHomToIdIso : P.dataHom ≅ CategoryTheory.Profunctor.id.ul
     (fun {Y Y'} g ↦ by
       ext a
       rcases a with ⟨a⟩
-      simp only [CategoryTheory.Profunctor.ulift_obj_map, dataHomProfunctor_obj_map,
-        CategoryTheory.Profunctor.id_obj_map]
+      simp only [Profunctor.ulift_obj_map, dataHomProfunctor_obj_map,
+        Profunctor.id_obj_map]
       apply congr_arg ULift.up
       change (P.homEquiv X Y'.unop).symm (P.I.map g.unop ≫ a) =
         g.unop ≫ (P.homEquiv X Y.unop).symm a
@@ -267,8 +267,8 @@ noncomputable def dataHomToIdIso : P.dataHom ≅ CategoryTheory.Profunctor.id.ul
     (fun {X X'} g ↦ by
       ext Y a
       rcases a with ⟨a⟩
-      simp only [CategoryTheory.NatTrans.comp_app, CategoryTheory.Profunctor.ulift_map_app,
-        dataHomProfunctor_map_app, CategoryTheory.Profunctor.id_map_app]
+      simp only [CategoryTheory.NatTrans.comp_app, Profunctor.ulift_map_app,
+        dataHomProfunctor_map_app, Profunctor.id_map_app]
       apply congr_arg ULift.up
       change (P.homEquiv X' Y.unop).symm (a ≫ P.I.map g) =
         (P.homEquiv X Y.unop).symm a ≫ g
@@ -288,7 +288,7 @@ The invariant profunctor obtained by precomposing the geometric category with
 `G : geom' ⥤ geom`.
 -/
 abbrev invariantThroughGeomFunctor (I : geom ⥤ data) (G : geom' ⥤ geom) :
-    CategoryTheory.Profunctor.{u + 1} geom' data :=
+    Profunctor.{u + 1} geom' data :=
   representedInvariant (G ⋙ I)
 
 /--
@@ -296,17 +296,17 @@ The algorithm profunctor obtained by precomposing the geometric category with
 `G : geom' ⥤ geom`.
 -/
 abbrev algorithmThroughGeomFunctor (I : geom ⥤ data) (G : geom' ⥤ geom) :
-    CategoryTheory.Profunctor.{u + 1} data geom' :=
+    Profunctor.{u + 1} data geom' :=
   representedAlgorithm (G ⋙ I)
 
 /-- The invariant profunctor after replacing the geometric category along `G : geom' ⥤ geom`. -/
 abbrev invariantThroughGeom (G : geom' ⥤ geom) :
-    CategoryTheory.Profunctor.{u + 1} geom' data :=
+    Profunctor.{u + 1} geom' data :=
   invariantThroughGeomFunctor P.I G
 
 /-- The algorithm profunctor after replacing the geometric category along `G : geom' ⥤ geom`. -/
 abbrev algorithmThroughGeom (G : geom' ⥤ geom) :
-    CategoryTheory.Profunctor.{u + 1} data geom' :=
+    Profunctor.{u + 1} data geom' :=
   algorithmThroughGeomFunctor P.I G
 
 /--
@@ -395,7 +395,7 @@ It is the composite of the represented invariant with the profunctor represented
 `F.obj d' ⟶ I.obj X`.
 -/
 abbrev invariantThroughFunctor (I : geom ⥤ data) (F : data' ⥤ data) :
-    CategoryTheory.Profunctor.{u + 1} geom data' :=
+    Profunctor.{u + 1} geom data' :=
   (representedInvariant I).comp.{u + 1} (representedAlgorithm F)
 
 /--
@@ -406,21 +406,21 @@ It is the composite of the profunctor represented by `F : data' ⥤ data` in the
 with the represented algorithm of `I`.  Informally, it encodes maps `I.obj Y ⟶ F.obj d'`.
 -/
 abbrev algorithmThroughFunctor (I : geom ⥤ data) (F : data' ⥤ data) :
-    CategoryTheory.Profunctor.{u + 1} data' geom :=
+    Profunctor.{u + 1} data' geom :=
   (representedInvariant F).comp.{u + 1} (representedAlgorithm I)
 
 /--
 The invariant profunctor obtained from a representable invariant after replacing the data category
 by a category mapping to it.
 -/
-abbrev invariantThrough (F : data' ⥤ data) : CategoryTheory.Profunctor.{u + 1} geom data' :=
+abbrev invariantThrough (F : data' ⥤ data) : Profunctor.{u + 1} geom data' :=
   invariantThroughFunctor P.I F
 
 /--
 The algorithm profunctor obtained from a representable invariant after replacing the data category
 by a category mapping to it.
 -/
-abbrev algorithmThrough (F : data' ⥤ data) : CategoryTheory.Profunctor.{u + 1} data' geom :=
+abbrev algorithmThrough (F : data' ⥤ data) : Profunctor.{u + 1} data' geom :=
   algorithmThroughFunctor P.I F
 
 set_option backward.defeqAttrib.useBackward true in
@@ -433,7 +433,7 @@ morphisms `Y ⟶ X` in `data`.
 -/
 noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj] :
     (representedAlgorithm F).comp.{u + 1} (representedInvariant F) ≅
-      (CategoryTheory.Profunctor.id (C := data)).ulift1 := by
+      (Profunctor.id (C := data)).ulift1 := by
   refine NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ ?_) ?_) ?_
   · refine {
       hom := ?_,
@@ -450,7 +450,7 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
           change ULift.{u + 1, u} (F.obj _ ⟶ X) at a
           change ULift.{u + 1, u} (Y.unop ⟶ F.obj _) at b
           dsimp at a b
-          dsimp [CategoryTheory.Profunctor.compDiagram]
+          dsimp [Profunctor.compDiagram]
           rw [Category.assoc]
     · exact ↾fun h ↦
         let A := F.objPreimage Y.unop
@@ -477,7 +477,7 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
         let e := F.objObjPreimageIso Y.unop
         let f : F.objPreimage Y.unop ⟶ A := F.preimage (e.hom ≫ b.down)
         refine ⟨f, (a, ULift.up e.inv), ?_, ?_⟩
-        · dsimp [CategoryTheory.Profunctor.compDiagram]
+        · dsimp [Profunctor.compDiagram]
           change (ULift.up (F.map f ≫ a.down), ULift.up e.inv) =
             (ULift.up (e.hom ≫ b.down ≫ a.down), ULift.up e.inv)
           apply Prod.ext
@@ -485,7 +485,7 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
             rw [F.map_preimage]
             simp [e]
           · rfl
-        · dsimp [CategoryTheory.Profunctor.compDiagram]
+        · dsimp [Profunctor.compDiagram]
           apply Prod.ext
           · rfl
           · apply congrArg ULift.up
@@ -501,11 +501,11 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
       rcases z with ⟨A, a, b⟩
       change ULift.{u + 1, u} (F.obj A ⟶ X) at a
       change ULift.{u + 1, u} (Y.unop ⟶ F.obj A) at b
-      simp only [CategoryTheory.Profunctor.ulift_obj_map, CategoryTheory.Profunctor.id_obj_map,
-        CategoryTheory.Profunctor.comp_obj_map]
+      simp only [Profunctor.ulift_obj_map, Profunctor.id_obj_map,
+        Profunctor.comp_obj_map]
       dsimp
       rw [chosenCoendMap_mk]
-      dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
+      dsimp [Profunctor.compDiagramMap, Profunctor.compDiagram]
       rcases a with ⟨a⟩
       rcases b with ⟨b⟩
       simp
@@ -516,11 +516,11 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
       rcases z with ⟨A, a, b⟩
       change ULift.{u + 1, u} (F.obj A ⟶ X) at a
       change ULift.{u + 1, u} (Y.unop ⟶ F.obj A) at b
-      simp only [CategoryTheory.NatTrans.comp_app, CategoryTheory.Profunctor.ulift_map_app,
-        CategoryTheory.Profunctor.id_map_app, CategoryTheory.Profunctor.comp_map_app]
+      simp only [CategoryTheory.NatTrans.comp_app, Profunctor.ulift_map_app,
+        Profunctor.id_map_app, Profunctor.comp_map_app]
       dsimp
       rw [chosenCoendMap_mk]
-      dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
+      dsimp [Profunctor.compDiagramMap, Profunctor.compDiagram]
       rcases a with ⟨a⟩
       rcases b with ⟨b⟩
       simp
@@ -549,24 +549,24 @@ noncomputable def coYonedaDataHomIsoThroughFunctor (I : geom ⥤ data) (F : data
 The invariant profunctor after replacing both the geometric category and the data category.
 -/
 abbrev invariantThroughGeomDataFunctor (I : geom ⥤ data) (G : geom' ⥤ geom)
-    (F : data' ⥤ data) : CategoryTheory.Profunctor.{u + 1} geom' data' :=
+    (F : data' ⥤ data) : Profunctor.{u + 1} geom' data' :=
   invariantThroughFunctor (G ⋙ I) F
 
 /--
 The algorithm profunctor after replacing both the geometric category and the data category.
 -/
 abbrev algorithmThroughGeomDataFunctor (I : geom ⥤ data) (G : geom' ⥤ geom)
-    (F : data' ⥤ data) : CategoryTheory.Profunctor.{u + 1} data' geom' :=
+    (F : data' ⥤ data) : Profunctor.{u + 1} data' geom' :=
   algorithmThroughFunctor (G ⋙ I) F
 
 /-- The invariant profunctor after replacing both geometric and data categories. -/
 abbrev invariantThroughGeomData (G : geom' ⥤ geom) (F : data' ⥤ data) :
-    CategoryTheory.Profunctor.{u + 1} geom' data' :=
+    Profunctor.{u + 1} geom' data' :=
   invariantThroughGeomDataFunctor P.I G F
 
 /-- The algorithm profunctor after replacing both geometric and data categories. -/
 abbrev algorithmThroughGeomData (G : geom' ⥤ geom) (F : data' ⥤ data) :
-    CategoryTheory.Profunctor.{u + 1} data' geom' :=
+    Profunctor.{u + 1} data' geom' :=
   algorithmThroughGeomDataFunctor P.I G F
 
 /--
