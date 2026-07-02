@@ -39,8 +39,7 @@ variable (P : IsoFormPackage geom data)
 
 /-- The Iso-form reconstruction isomorphism, as an alias for `HomFormPackage.homIso`. -/
 abbrev isoIso :
-    CategoryTheory.Profunctor.comp.{u + 1} P.invariant P.algorithm ≅
-      CategoryTheory.Profunctor.id.ulift1 :=
+    P.invariant.comp.{u + 1} P.algorithm ≅ CategoryTheory.Profunctor.id.ulift1 :=
   P.homIso
 
 /-- The associated profunctor reconstruction theorem on groupoid cores. -/

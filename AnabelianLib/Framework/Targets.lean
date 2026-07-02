@@ -80,7 +80,7 @@ structure SubtargetReconstruction
   /-- The data-internal reconstruction algorithm. -/
   algorithm : CategoryTheory.Profunctor.{u + 1} data geom
   /-- The reconstruction isomorphism. -/
-  decodeIso : CategoryTheory.Profunctor.comp.{u + 1} invariant algorithm ≅ target.profunctor
+  decodeIso : invariant.comp.{u + 1} algorithm ≅ target.profunctor
 
 namespace SubtargetReconstruction
 
@@ -106,7 +106,7 @@ structure SectionFormPackage
   /-- The geometric point-like target. -/
   points : CategoryTheory.Profunctor.{u + 1} geom sectionIndex
   /-- Sections reconstruct points after composing with the invariant. -/
-  sectionIso : CategoryTheory.Profunctor.comp.{u + 1} invariant sections ≅ points
+  sectionIso : invariant.comp.{u + 1} sections ≅ points
 
 /-- Direct comparison form for section theorems that have already composed the invariant. -/
 structure SectionComparisonPackage

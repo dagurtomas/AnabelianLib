@@ -49,8 +49,7 @@ A representative at `(X, d)` consists of a marked object `m`, a morphism `forget
 morphism `d ⟶ markedI m`.
 -/
 abbrev invariant : CategoryTheory.Profunctor.{u + 1} geom data :=
-  CategoryTheory.Profunctor.comp.{u + 1}
-    S.forget.toProfunctorRev.ulift1 S.markedInvariantProfunctor
+  S.forget.toProfunctorRev.ulift1.comp.{u + 1} S.markedInvariantProfunctor
 
 /-- Optional descent of a marked invariant to a strict unmarked invariant functor. -/
 structure Descent where
@@ -75,7 +74,7 @@ end Descent
 /-- Build a profunctor reconstruction directly from marked invariant data. -/
 noncomputable def toReconstruction (target : CategoryTheory.Profunctor.{u + 1} geom geom)
     (algorithm : CategoryTheory.Profunctor.{u + 1} data geom)
-    (decodeIso : CategoryTheory.Profunctor.comp.{u + 1} S.invariant algorithm ≅ target) :
+    (decodeIso : S.invariant.comp.{u + 1} algorithm ≅ target) :
     ProfunctorReconstruction geom data where
   invariant := S.invariant
   target := target

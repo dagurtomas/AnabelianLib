@@ -41,7 +41,7 @@ structure HomFormPackage
   /-- The data-internal reconstruction algorithm. -/
   algorithm : CategoryTheory.Profunctor.{u + 1} data geom
   /-- The Hom-form reconstruction isomorphism. -/
-  homIso : CategoryTheory.Profunctor.comp.{u + 1} invariant algorithm ≅
+  homIso : invariant.comp.{u + 1} algorithm ≅
     CategoryTheory.Profunctor.id.ulift1
 
 namespace HomFormPackage
@@ -62,8 +62,7 @@ private noncomputable def profunctorWhiskerLeftIso {A B C : Type (u + 1)}
     [Category.{u} A] [Category.{u} B] [Category.{u} C]
     (P : CategoryTheory.Profunctor.{u + 1} A B)
     {Q R : CategoryTheory.Profunctor.{u + 1} B C} (e : Q ≅ R) :
-    CategoryTheory.Profunctor.comp.{u + 1} P Q ≅
-      CategoryTheory.Profunctor.comp.{u + 1} P R where
+    P.comp.{u + 1} Q ≅ P.comp.{u + 1} R where
   hom := P.whiskerLeft e.hom
   inv := P.whiskerLeft e.inv
   hom_inv_id := by simp [← CategoryTheory.Profunctor.whiskerLeft_comp]
@@ -74,8 +73,7 @@ private noncomputable def profunctorWhiskerRightIso {A B C : Type (u + 1)}
     [Category.{u} A] [Category.{u} B] [Category.{u} C]
     {P Q : CategoryTheory.Profunctor.{u + 1} A B}
     (R : CategoryTheory.Profunctor.{u + 1} B C) (e : P ≅ Q) :
-    CategoryTheory.Profunctor.comp.{u + 1} P R ≅
-      CategoryTheory.Profunctor.comp.{u + 1} Q R where
+    P.comp.{u + 1} R ≅ Q.comp.{u + 1} R where
   hom := CategoryTheory.Profunctor.whiskerRight R e.hom
   inv := CategoryTheory.Profunctor.whiskerRight R e.inv
   hom_inv_id := by simp [← CategoryTheory.Profunctor.comp_whiskerRight]
@@ -86,8 +84,7 @@ set_option backward.isDefEq.respectTransparency false in
 /-- The right unitor for composition with the universe-lifted identity profunctor. -/
 private noncomputable def profunctorRightUnitorUlift {A B : Type (u + 1)}
     [Category.{u} A] [Category.{u} B] (P : CategoryTheory.Profunctor.{u + 1} A B) :
-    CategoryTheory.Profunctor.comp.{u + 1} P (CategoryTheory.Profunctor.id (C := B)).ulift1 ≅
-      P :=
+    P.comp.{u + 1} (CategoryTheory.Profunctor.id (C := B)).ulift1 ≅ P :=
   NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ {
     hom := ↾Quot.lift (fun ⟨d, x, f⟩ ↦ (P.obj X).map f.down.op x) fun _ _ h ↦ by
       cases h
@@ -167,8 +164,7 @@ modulo the coend relation.  This co-Yoneda isomorphism sends such a representati
 composite `I Y ⟶ I X`.
 -/
 noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
-    CategoryTheory.Profunctor.comp.{u + 1} (representedInvariant I) (representedAlgorithm I) ≅
-      dataHomProfunctor I :=
+    (representedInvariant I).comp.{u + 1} (representedAlgorithm I) ≅ dataHomProfunctor I :=
   NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ {
     hom := ↾ Quot.lift
       (fun z : (d : data) ×
@@ -179,11 +175,11 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
         cases h with
         | mk f x =>
           rcases x with ⟨a, b⟩
+          change ULift.{u + 1, u} (_ ⟶ I.obj X) at a
+          change ULift.{u + 1, u} (I.obj Y.unop ⟶ _) at b
+          dsimp at a b
           dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedInvariant_obj_map, representedAlgorithm_map_app]
-          change ULift.up (b.down ≫ (f ≫ a.down)) =
-            ULift.up ((b.down ≫ f) ≫ a.down)
-          simp)
+          rw [Category.assoc])
     inv := ↾fun a ↦
       Quot.mk _ ⟨I.obj X, (ULift.up (𝟙 _), ULift.up a.down)⟩
     hom_inv_id := by
@@ -191,6 +187,8 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
       induction z using Quot.inductionOn with
       | h z =>
         rcases z with ⟨d, a, b⟩
+        change ULift.{u + 1, u} (d ⟶ I.obj X) at a
+        change ULift.{u + 1, u} (I.obj Y.unop ⟶ d) at b
         change Quot.mk
           (CategoryTheory.Limits.Types.coendRel
             ((representedInvariant I).compDiagram
@@ -206,15 +204,11 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
         rw [CategoryTheory.Limits.Types.coendRel_iff]
         refine ⟨a.down, (ULift.up (𝟙 _), b), ?_, ?_⟩
         · dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedInvariant_obj_map]
-          change (ULift.up (a.down ≫ 𝟙 (I.obj X)), b) = (a, b)
           apply Prod.ext
           · rcases a with ⟨a⟩
             exact congr_arg ULift.up (Category.comp_id a)
           · rfl
         · dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedAlgorithm_map_app]
-          rfl
     inv_hom_id := by
       ext a
       rcases a with ⟨a⟩
@@ -225,11 +219,12 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
       induction z using Quot.inductionOn with
       | h z =>
         rcases z with ⟨d, a, b⟩
+        change ULift.{u + 1, u} (d ⟶ I.obj X) at a
+        change ULift.{u + 1, u} (I.obj Y.unop ⟶ d) at b
         simp only [CategoryTheory.Profunctor.comp_obj_map, dataHomProfunctor_obj_map]
         dsimp
         rw [chosenCoendMap_mk]
         dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
-        simp only [representedAlgorithm_obj_map, representedInvariant_map_app]
         simp))
     (by
       intro X X' f
@@ -237,12 +232,13 @@ noncomputable def coYonedaDataHomIso (I : geom ⥤ data) :
       induction z using Quot.inductionOn with
       | h z =>
         rcases z with ⟨d, a, b⟩
+        change ULift.{u + 1, u} (d ⟶ I.obj X) at a
+        change ULift.{u + 1, u} (I.obj Y.unop ⟶ d) at b
         simp only [CategoryTheory.NatTrans.comp_app, CategoryTheory.Profunctor.comp_map_app,
           dataHomProfunctor_map_app]
         dsimp
         rw [chosenCoendMap_mk]
         dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
-        simp only [representedInvariant_map_app, representedAlgorithm_obj_map]
         simp)
 
 /-- The objectwise Hom-form theorem as an isomorphism of profunctors. -/
@@ -400,7 +396,7 @@ It is the composite of the represented invariant with the profunctor represented
 -/
 abbrev invariantThroughFunctor (I : geom ⥤ data) (F : data' ⥤ data) :
     CategoryTheory.Profunctor.{u + 1} geom data' :=
-  CategoryTheory.Profunctor.comp.{u + 1} (representedInvariant I) (representedAlgorithm F)
+  (representedInvariant I).comp.{u + 1} (representedAlgorithm F)
 
 /--
 The algorithm profunctor obtained from a functorial invariant after replacing the data category by a
@@ -411,7 +407,7 @@ with the represented algorithm of `I`.  Informally, it encodes maps `I.obj Y ⟶
 -/
 abbrev algorithmThroughFunctor (I : geom ⥤ data) (F : data' ⥤ data) :
     CategoryTheory.Profunctor.{u + 1} data' geom :=
-  CategoryTheory.Profunctor.comp.{u + 1} (representedInvariant F) (representedAlgorithm I)
+  (representedInvariant F).comp.{u + 1} (representedAlgorithm I)
 
 /--
 The invariant profunctor obtained from a representable invariant after replacing the data category
@@ -436,7 +432,7 @@ It identifies factorizations `Y ⟶ F d' ⟶ X`, modulo the coend relation over 
 morphisms `Y ⟶ X` in `data`.
 -/
 noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj] :
-    CategoryTheory.Profunctor.comp.{u + 1} (representedAlgorithm F) (representedInvariant F) ≅
+    (representedAlgorithm F).comp.{u + 1} (representedInvariant F) ≅
       (CategoryTheory.Profunctor.id (C := data)).ulift1 := by
   refine NatIso.ofComponents (fun X ↦ NatIso.ofComponents (fun Y ↦ ?_) ?_) ?_
   · refine {
@@ -451,11 +447,11 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
         cases h with
         | mk f x =>
           rcases x with ⟨a, b⟩
+          change ULift.{u + 1, u} (F.obj _ ⟶ X) at a
+          change ULift.{u + 1, u} (Y.unop ⟶ F.obj _) at b
+          dsimp at a b
           dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedAlgorithm_obj_map, representedInvariant_map_app]
-          change ULift.up (b.down ≫ (F.map f ≫ a.down)) =
-            ULift.up ((b.down ≫ F.map f) ≫ a.down)
-          simp
+          rw [Category.assoc]
     · exact ↾fun h ↦
         let A := F.objPreimage Y.unop
         let e := F.objObjPreimageIso Y.unop
@@ -464,6 +460,8 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
       induction z using Quot.inductionOn with
       | h z =>
         rcases z with ⟨A, a, b⟩
+        change ULift.{u + 1, u} (F.obj A ⟶ X) at a
+        change ULift.{u + 1, u} (Y.unop ⟶ F.obj A) at b
         change Quot.mk
           (CategoryTheory.Limits.Types.coendRel
             ((representedAlgorithm F).compDiagram (representedInvariant F) X Y.unop))
@@ -480,7 +478,6 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
         let f : F.objPreimage Y.unop ⟶ A := F.preimage (e.hom ≫ b.down)
         refine ⟨f, (a, ULift.up e.inv), ?_, ?_⟩
         · dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedAlgorithm_obj_map]
           change (ULift.up (F.map f ≫ a.down), ULift.up e.inv) =
             (ULift.up (e.hom ≫ b.down ≫ a.down), ULift.up e.inv)
           apply Prod.ext
@@ -489,8 +486,6 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
             simp [e]
           · rfl
         · dsimp [CategoryTheory.Profunctor.compDiagram]
-          simp only [representedInvariant_map_app]
-          change (a, ULift.up (e.inv ≫ F.map f)) = (a, b)
           apply Prod.ext
           · rfl
           · apply congrArg ULift.up
@@ -504,6 +499,8 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
     induction z using Quot.inductionOn with
     | h z =>
       rcases z with ⟨A, a, b⟩
+      change ULift.{u + 1, u} (F.obj A ⟶ X) at a
+      change ULift.{u + 1, u} (Y.unop ⟶ F.obj A) at b
       simp only [CategoryTheory.Profunctor.ulift_obj_map, CategoryTheory.Profunctor.id_obj_map,
         CategoryTheory.Profunctor.comp_obj_map]
       dsimp
@@ -511,12 +508,14 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
       dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
       rcases a with ⟨a⟩
       rcases b with ⟨b⟩
-      simp [representedInvariant_obj_map]
+      simp
   · intro X X' g
     ext Y z
     induction z using Quot.inductionOn with
     | h z =>
       rcases z with ⟨A, a, b⟩
+      change ULift.{u + 1, u} (F.obj A ⟶ X) at a
+      change ULift.{u + 1, u} (Y.unop ⟶ F.obj A) at b
       simp only [CategoryTheory.NatTrans.comp_app, CategoryTheory.Profunctor.ulift_map_app,
         CategoryTheory.Profunctor.id_map_app, CategoryTheory.Profunctor.comp_map_app]
       dsimp
@@ -524,7 +523,7 @@ noncomputable def fullEssSurjDensityIso (F : data' ⥤ data) [F.Full] [F.EssSurj
       dsimp [CategoryTheory.Profunctor.compDiagramMap, CategoryTheory.Profunctor.compDiagram]
       rcases a with ⟨a⟩
       rcases b with ⟨b⟩
-      simp [representedInvariant_obj_map, representedAlgorithm_map_app]
+      simp
 
 /--
 The co-Yoneda comparison for replacing the data category by a full essentially-surjective
@@ -532,8 +531,8 @@ presentation `F : data' ⥤ data`.
 -/
 noncomputable def coYonedaDataHomIsoThroughFunctor (I : geom ⥤ data) (F : data' ⥤ data)
     [F.Full] [F.EssSurj] :
-    CategoryTheory.Profunctor.comp.{u + 1}
-      (invariantThroughFunctor I F) (algorithmThroughFunctor I F) ≅ dataHomProfunctor I := by
+    (invariantThroughFunctor I F).comp.{u + 1} (algorithmThroughFunctor I F) ≅
+      dataHomProfunctor I := by
   let A := representedInvariant I
   let B := representedAlgorithm F
   let C := representedInvariant F

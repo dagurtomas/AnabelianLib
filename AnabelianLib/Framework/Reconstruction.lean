@@ -73,7 +73,7 @@ structure ProfunctorReconstruction
   /-- The data-internal reconstruction algorithm. -/
   algorithm : Profunctor.{u + 1} data geom
   /-- Soundness and completeness as a profunctor isomorphism. -/
-  decodeIso : Profunctor.comp.{u + 1} invariant algorithm ≅ target
+  decodeIso : invariant.comp.{u + 1} algorithm ≅ target
 
 namespace ProfunctorReconstruction
 
@@ -81,12 +81,12 @@ variable (P : ProfunctorReconstruction geom data)
 
 /-- The decoding map from algorithmic data to geometric output. -/
 noncomputable def decode :
-    Profunctor.comp.{u + 1} P.invariant P.algorithm ⟶ P.target :=
+    P.invariant.comp.{u + 1} P.algorithm ⟶ P.target :=
   P.decodeIso.hom
 
 /-- The encoding map from geometric output to algorithmic data. -/
 noncomputable def encode :
-    P.target ⟶ Profunctor.comp.{u + 1} P.invariant P.algorithm :=
+    P.target ⟶ P.invariant.comp.{u + 1} P.algorithm :=
   P.decodeIso.inv
 
 @[simp]
@@ -116,7 +116,7 @@ structure TwoSidedProfunctorReconstruction
   /-- The data-internal reconstruction algorithm, attached to source/domain objects. -/
   algorithm : Profunctor.{u + 1} data domain
   /-- Soundness and completeness as a profunctor isomorphism. -/
-  decodeIso : Profunctor.comp.{u + 1} invariant algorithm ≅ target
+  decodeIso : invariant.comp.{u + 1} algorithm ≅ target
 
 namespace TwoSidedProfunctorReconstruction
 
@@ -131,7 +131,7 @@ noncomputable def decode :
 
 /-- The encoding map from geometric output to algorithmic data. -/
 noncomputable def encode :
-    P.target ⟶ Profunctor.comp.{u + 1} P.invariant P.algorithm :=
+    P.target ⟶ P.invariant.comp.{u + 1} P.algorithm :=
   P.decodeIso.inv
 
 @[simp]

@@ -79,7 +79,7 @@ structure AdmissibleHomFormPackage
     homEquiv X Y' (g ≫ f) =
       ⟨I.map g ≫ (homEquiv X Y f).1, admissible.precomp g (homEquiv X Y f).2⟩
   /-- The final profunctor reconstruction isomorphism. -/
-  decodeIso : CategoryTheory.Profunctor.comp.{u + 1} (representedInvariant I) admissible.algorithm ≅
+  decodeIso : (representedInvariant I).comp.{u + 1} admissible.algorithm ≅
     CategoryTheory.Profunctor.id.ulift1
 
 namespace AdmissibleHomFormPackage
