@@ -52,13 +52,6 @@ At `(d, Y)` it is the universe lift of the type of data morphisms `I Y ⟶ d`.
 def representedAlgorithm (I : geom ⥤ data) : Profunctor.{u + 1} data geom :=
   I.toProfunctorRev.ulift1
 
-/-- The data-Hom profunctor represented by a strict covariant invariant functor. -/
-@[simps! +dsimpLhs obj_obj obj_map map_app]
-def dataHomProfunctor (I : geom ⥤ data) : Profunctor.{u + 1} geom geom :=
-  .ofCore {
-    obj X Y := ULift.{u + 1, u} (I.obj Y ⟶ I.obj X)
-    map f g := ↾fun a ↦ ULift.up (I.map g ≫ a.down ≫ I.map f) }
-
 /--
 A reconstruction theorem as an isomorphism of profunctors.
 

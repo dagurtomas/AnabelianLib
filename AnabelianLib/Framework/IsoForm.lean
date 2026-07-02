@@ -100,7 +100,7 @@ The objectwise Iso-form theorem as an isomorphism from data-Homs of the composed
 isomorphisms between the presented geometric objects.
 -/
 noncomputable abbrev dataHomToGeomDataHomIso (G : geom' ⥤ geom) :
-    dataHomProfunctor (G.core ⋙ P.I) ≅ dataHomProfunctor G.core :=
+    (G.core ⋙ P.I).imageHomProfunctor ≅ G.core.imageHomProfunctor :=
   P.toRepresentableHomFormPackage.dataHomToGeomDataHomIso G.core
 
 /--
