@@ -1,0 +1,160 @@
+/-
+Copyright (c) 2026 Dagur Asgeirsson. All rights reserved.
+Released under Apache 2.0 license as described in the file LICENSE.
+Authors: Dagur Asgeirsson
+-/
+
+import AnabelianLib.Framework.ProfunctorAPI
+
+
+/-!
+# Core profunctor reconstruction framework
+
+The central object is an invariant profunctor
+
+```
+invariant : Profunctor geom data
+```
+
+rather than a strict invariant functor.  This supports invariants depending on choices, such as
+separable closures or basepoints, before any descent to an honest functor is available.  Strict
+covariant invariant functors are represented by `representedInvariant`.
+
+All framework profunctors live in universe `u + 1`; representable profunctors therefore use
+`ULift` on ordinary hom-types in categories with morphisms in universe `u`.
+-/
+
+
+universe u
+
+namespace Anabelian
+
+open CategoryTheory Opposite
+
+variable {geom data : Type (u + 1)} [Category.{u} geom] [Category.{u} data]
+
+/--
+The invariant profunctor represented by a strict covariant functor.
+
+For `I : geom ⥤ data`, the value at `(X, d)` is the universe lift of `d ⟶ I X`.  This is the
+standard profunctor represented by the invariant object `I X`, placed in the uniform profunctor
+universe `u + 1`.
+-/
+@[simps! +dsimpLhs obj_obj obj_map map_app]
+def representedInvariant (I : geom ⥤ data) : CategoryTheory.Profunctor.{u + 1} geom data :=
+  .ofCore {
+    obj X d := ULift.{u + 1, u} (d ⟶ I.obj X)
+    map f g := ↾fun a ↦ ULift.up (g ≫ a.down ≫ I.map f) }
+
+/--
+The canonical Hom-form algorithm associated to a strict covariant invariant functor.
+
+At `(d, Y)` it is the universe lift of the type of data morphisms `I Y ⟶ d`.
+-/
+@[simps! +dsimpLhs obj_obj obj_map map_app]
+def representedAlgorithm (I : geom ⥤ data) : CategoryTheory.Profunctor.{u + 1} data geom :=
+  .ofCore {
+    obj d Y := ULift.{u + 1, u} (I.obj Y ⟶ d)
+    map f g := ↾fun a ↦ ULift.up (I.map g ≫ a.down ≫ f) }
+
+/-- The data-Hom profunctor represented by a strict covariant invariant functor. -/
+@[simps! +dsimpLhs obj_obj obj_map map_app]
+def dataHomProfunctor (I : geom ⥤ data) : CategoryTheory.Profunctor.{u + 1} geom geom :=
+  .ofCore {
+    obj X Y := ULift.{u + 1, u} (I.obj Y ⟶ I.obj X)
+    map f g := ↾fun a ↦ ULift.up (I.map g ≫ a.down ≫ I.map f) }
+
+/--
+A reconstruction theorem as an isomorphism of profunctors.
+
+`invariant` is the available invariant of geometric objects, `algorithm` is a data-internal
+procedure, and `target` is the geometric profunctor being reconstructed.
+-/
+structure ProfunctorReconstruction
+    (geom : Type (u + 1)) (data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
+  /-- The invariant of geometric objects, allowing indeterminacy. -/
+  invariant : CategoryTheory.Profunctor.{u + 1} geom data
+  /-- The geometric profunctor being reconstructed. -/
+  target : CategoryTheory.Profunctor.{u + 1} geom geom
+  /-- The data-internal reconstruction algorithm. -/
+  algorithm : CategoryTheory.Profunctor.{u + 1} data geom
+  /-- Soundness and completeness as a profunctor isomorphism. -/
+  decodeIso : CategoryTheory.Profunctor.comp.{u + 1} invariant algorithm ≅ target
+
+namespace ProfunctorReconstruction
+
+variable (P : ProfunctorReconstruction geom data)
+
+/-- The decoding map from algorithmic data to geometric output. -/
+noncomputable def decode :
+    CategoryTheory.Profunctor.comp.{u + 1} P.invariant P.algorithm ⟶ P.target :=
+  P.decodeIso.hom
+
+/-- The encoding map from geometric output to algorithmic data. -/
+noncomputable def encode :
+    P.target ⟶ CategoryTheory.Profunctor.comp.{u + 1} P.invariant P.algorithm :=
+  P.decodeIso.inv
+
+@[simp]
+theorem decode_encode : P.decode ≫ P.encode = 𝟙 _ :=
+  P.decodeIso.hom_inv_id
+
+@[simp]
+theorem encode_decode : P.encode ≫ P.decode = 𝟙 P.target :=
+  P.decodeIso.inv_hom_id
+
+end ProfunctorReconstruction
+
+/--
+A two-sided reconstruction theorem for Hom-like statements whose source and target geometric
+categories differ.
+
+At `(Y, X)`, the target usually represents morphisms `X ⟶ Y`. The invariant is attached to the
+codomain variable `Y`, while the algorithm is attached to the domain variable `X`.
+-/
+structure TwoSidedProfunctorReconstruction
+    (codomain domain data : Type (u + 1))
+    [Category.{u} codomain] [Category.{u} domain] [Category.{u} data] where
+  /-- The invariant of target/codomain objects. -/
+  invariant : CategoryTheory.Profunctor.{u + 1} codomain data
+  /-- The geometric profunctor being reconstructed. -/
+  target : CategoryTheory.Profunctor.{u + 1} codomain domain
+  /-- The data-internal reconstruction algorithm, attached to source/domain objects. -/
+  algorithm : CategoryTheory.Profunctor.{u + 1} data domain
+  /-- Soundness and completeness as a profunctor isomorphism. -/
+  decodeIso : CategoryTheory.Profunctor.comp.{u + 1} invariant algorithm ≅ target
+
+namespace TwoSidedProfunctorReconstruction
+
+variable {codomain domain data : Type (u + 1)}
+variable [Category.{u} codomain] [Category.{u} domain] [Category.{u} data]
+variable (P : TwoSidedProfunctorReconstruction codomain domain data)
+
+/-- The decoding map from algorithmic data to geometric output. -/
+noncomputable def decode :
+    CategoryTheory.Profunctor.comp.{u + 1} P.invariant P.algorithm ⟶ P.target :=
+  P.decodeIso.hom
+
+/-- The encoding map from geometric output to algorithmic data. -/
+noncomputable def encode :
+    P.target ⟶ CategoryTheory.Profunctor.comp.{u + 1} P.invariant P.algorithm :=
+  P.decodeIso.inv
+
+@[simp]
+theorem decode_encode : P.decode ≫ P.encode = 𝟙 _ :=
+  P.decodeIso.hom_inv_id
+
+@[simp]
+theorem encode_decode : P.encode ≫ P.decode = 𝟙 P.target :=
+  P.decodeIso.inv_hom_id
+
+end TwoSidedProfunctorReconstruction
+
+/-- Optional representation of an indeterminate invariant profunctor by a strict functor. -/
+structure RepresentedInvariant (invariant : CategoryTheory.Profunctor.{u + 1} geom data) where
+  /-- A strict covariant invariant functor. -/
+  I : geom ⥤ data
+  /-- The given invariant profunctor is represented by `I`. -/
+  iso : invariant ≅ representedInvariant I
+
+end Anabelian

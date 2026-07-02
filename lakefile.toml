@@ -1,0 +1,20 @@
+name = "anabelianlib"
+version = "0.1.0"
+keywords = ["math", "category-theory"]
+defaultTargets = ["AnabelianLib"]
+
+[leanOptions]
+pp.unicode.fun = true # pretty-prints `fun a ↦ b`
+autoImplicit = false
+relaxedAutoImplicit = false
+weak.linter.mathlibStandardSet = true
+maxSynthPendingDepth = 3
+
+[[require]]
+name = "mathlib"
+scope = "leanprover-community"
+git = "https://github.com/leanprover-community/mathlib4"
+rev = "6cc0969466dc9a1043de33485f78471e3aaa1bd8"
+
+[[lean_lib]]
+name = "AnabelianLib"
