@@ -16,7 +16,8 @@ The central object is an invariant profunctor
 invariant : Profunctor geom data
 ```
 
-This supports invariants depending on choices, such as separable closures or basepoints.
+This supports invariants depending on "indeterminacies", like choices, such as separable closures
+or basepoints.
 
 All framework profunctors live in universe `u + 1`; representable profunctors therefore use
 `ULift` on ordinary hom-types in categories with morphisms in universe `u`.
