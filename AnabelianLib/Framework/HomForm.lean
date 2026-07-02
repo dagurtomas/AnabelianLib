@@ -216,7 +216,7 @@ noncomputable def dataHomToIdIso : P.dataHom ≅ Profunctor.id.ulift1 :=
       rw [Equiv.symm_apply_eq]
       simpa using (P.natural_left ((P.homEquiv X Y.unop).symm a) g).symm)
 
-/-- The strict-functor Hom-form package as a profunctor-first Hom-form package. -/
+/-- The strict-functor Hom-form package as a profunctor Hom-form package. -/
 noncomputable def toHomFormPackage : HomFormPackage geom data where
   invariant := P.invariant
   algorithm := P.algorithm
@@ -318,7 +318,7 @@ noncomputable def representableThroughGeom (G : geom' ⥤ geom) [G.Full] [G.Fait
   homEquiv_apply f := P.homEquiv_apply (G.map f)
 
 /--
-Turn a representable Hom-form package into a profunctor-first package after replacing the
+Turn a representable Hom-form package into a profunctor Hom-form package after replacing the
 geometric category along a full faithful functor `G : geom' ⥤ geom`.
 -/
 noncomputable def toHomFormPackageThroughGeom (G : geom' ⥤ geom) [G.Full] [G.Faithful] :
@@ -524,7 +524,7 @@ noncomputable def toGeomPresentationReconstructionThrough (G : geom' ⥤ geom)
   decodeIso := coYonedaDataHomIsoThroughFunctor (G ⋙ P.I) F ≪≫ P.dataHomToGeomDataHomIso G
 
 /--
-Turn a representable Hom-form package with data category `data` into a profunctor-first Hom-form
+Turn a representable Hom-form package with data category `data` into a profunctor Hom-form
 package with data category `data'`, along a full essentially-surjective functor
 `F : data' ⥤ data`.
 -/
