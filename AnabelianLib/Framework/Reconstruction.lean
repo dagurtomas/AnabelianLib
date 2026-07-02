@@ -3,8 +3,9 @@ Copyright (c) 2026 Dagur Asgeirsson. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson
 -/
+module
 
-import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
 
 
 /-!
@@ -23,6 +24,7 @@ All framework profunctors live in universe `u + 1`; representable profunctors th
 `ULift` on ordinary hom-types in categories with morphisms in universe `u`.
 -/
 
+@[expose] public section
 
 universe u
 

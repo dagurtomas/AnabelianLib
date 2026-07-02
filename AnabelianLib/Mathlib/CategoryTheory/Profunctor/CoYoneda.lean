@@ -3,8 +3,9 @@ Copyright (c) 2026 Dagur Asgeirsson. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson
 -/
+module
 
-import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
 
 
 /-!
@@ -15,6 +16,7 @@ This file records the co-Yoneda isomorphism for the profunctors represented by a
 profunctor of morphisms between the images of objects under `F`.
 -/
 
+@[expose] public section
 
 universe w u
 

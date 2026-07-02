@@ -3,9 +3,10 @@ Copyright (c) 2026 Dagur Asgeirsson. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson
 -/
+module
 
-import AnabelianLib.Framework.HomForm
-import Mathlib.CategoryTheory.Core
+public import AnabelianLib.Framework.HomForm
+public import Mathlib.CategoryTheory.Core
 
 
 /-!
@@ -17,6 +18,7 @@ algorithm are profunctors; strict functorial invariants are handled by
 `RepresentableIsoFormPackage`.
 -/
 
+@[expose] public section
 
 universe u
 

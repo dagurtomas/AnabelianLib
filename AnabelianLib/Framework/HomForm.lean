@@ -3,10 +3,11 @@ Copyright (c) 2026 Dagur Asgeirsson. All rights reserved.
 Released under Apache 2.0 license as described in the file LICENSE.
 Authors: Dagur Asgeirsson
 -/
+module
 
-import AnabelianLib.Framework.Reconstruction
-import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CompIso
-import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CoYoneda
+public import AnabelianLib.Framework.Reconstruction
+public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CompIso
+public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.CoYoneda
 
 
 /-!
@@ -18,6 +19,7 @@ Strict covariant invariant functors are a representable special case, packaged s
 `RepresentableHomFormPackage`.
 -/
 
+@[expose] public section
 
 universe w u
 
@@ -28,7 +30,7 @@ open CategoryTheory Opposite
 variable {geom data : Type (u + 1)} [Category.{u} geom] [Category.{u} data]
 
 /-- Evaluation of the explicit Type-valued chosen-coend map on a quotient representative. -/
-private lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
+lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
     {F G : Jᵒᵖ ⥤ J ⥤ Type (max w (u + 1))} (α : F ⟶ G) (j : J)
     (x : (F.obj (Opposite.op j)).obj j) :
     (ConcreteCategory.hom (CategoryTheory.Limits.chosenCoend.map α)) (Quot.mk _ ⟨j, x⟩) =
