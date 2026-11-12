@@ -14,7 +14,7 @@ maxSynthPendingDepth = 3
 name = "mathlib"
 scope = "leanprover-community"
 git = "https://github.com/leanprover-community/mathlib4"
-rev = "6cc0969466dc9a1043de33485f78471e3aaa1bd8"
+rev = "v4.35.0"
 
 [[lean_lib]]
 name = "AnabelianLib"

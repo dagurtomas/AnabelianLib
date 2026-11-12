@@ -35,8 +35,7 @@ lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
     (x : (F.obj (Opposite.op j)).obj j) :
     (ConcreteCategory.hom (CategoryTheory.Limits.chosenCoend.map α)) (Quot.mk _ ⟨j, x⟩) =
       Quot.mk _ ⟨j, (α.app (Opposite.op j)).app j x⟩ := by
-  simp [CategoryTheory.Limits.Types.chosenCoend_def,
-    CategoryTheory.Limits.chosenCoend.map_apply]
+  rfl
 
 /-- Hom-form reconstruction data. -/
 structure HomFormPackage
@@ -107,12 +106,10 @@ noncomputable def dataHomToIdIso : P.dataHom ≅ Profunctor.id.ulift1 :=
     inv := ↾fun f ↦ ULift.up (P.homEquiv X Y.unop f.down)
     hom_inv_id := by
       ext a
-      cases a
-      simp
+      exact congrArg ULift.up ((P.homEquiv X Y.unop).apply_symm_apply a.down)
     inv_hom_id := by
       ext f
-      cases f
-      simp })
+      exact congrArg ULift.up ((P.homEquiv X Y.unop).symm_apply_apply f.down) })
     (fun {Y Y'} g ↦ by
       ext a
       rcases a with ⟨a⟩
@@ -179,12 +176,10 @@ noncomputable def dataHomToGeomDataHomIso (G : geom' ⥤ geom) :
     inv := ↾fun f ↦ ULift.up (P.homEquiv (G.obj X) (G.obj Y.unop) f.down)
     hom_inv_id := by
       ext a
-      cases a
-      simp
+      exact congrArg ULift.up ((P.homEquiv (G.obj X) (G.obj Y.unop)).apply_symm_apply a.down)
     inv_hom_id := by
       ext f
-      cases f
-      simp })
+      exact congrArg ULift.up ((P.homEquiv (G.obj X) (G.obj Y.unop)).symm_apply_apply f.down) })
     (fun {Y Y'} g ↦ by
       ext a
       rcases a with ⟨a⟩

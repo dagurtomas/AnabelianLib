@@ -5,7 +5,7 @@ Authors: Dagur Asgeirsson
 -/
 module
 
-public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+public import Mathlib.CategoryTheory.Profunctor.Comp
 
 
 /-!
@@ -30,7 +30,7 @@ private lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
     (x : (F.obj (Opposite.op j)).obj j) :
     (ConcreteCategory.hom (Limits.chosenCoend.map α)) (Quot.mk _ ⟨j, x⟩) =
       Quot.mk _ ⟨j, (α.app (Opposite.op j)).app j x⟩ := by
-  simp [Limits.Types.chosenCoend_def, Limits.chosenCoend.map_apply]
+  rfl
 
 namespace Functor
 

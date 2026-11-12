@@ -5,7 +5,7 @@ Authors: Dagur Asgeirsson
 -/
 module
 
-public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+public import Mathlib.CategoryTheory.Profunctor.Comp
 
 
 /-!

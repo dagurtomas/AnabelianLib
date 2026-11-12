@@ -5,14 +5,14 @@ Authors: Dagur Asgeirsson
 -/
 module
 
-public import AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp
+public import Mathlib.CategoryTheory.Profunctor.Comp
 
 
 /-!
 # Isomorphisms for profunctor composition
 
 This file contains small isomorphism-level helpers for the profunctor composition developed in
-`AnabelianLib.Mathlib.CategoryTheory.Profunctor.Comp`.
+`Mathlib.CategoryTheory.Profunctor.Comp`.
 -/
 
 @[expose] public section
