@@ -39,8 +39,8 @@ lemma chosenCoendMap_mk {J : Type (u + 1)} [Category.{u} J]
 
 /-- Hom-form reconstruction data. -/
 structure HomFormPackage
-    (geom : Type (u + 1)) (data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
-  /-- The "invariant" profunctor. -/
+    (geom data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
+  /-- The invariant of geometric objects, allowing indeterminacy. -/
   invariant : Profunctor.{u + 1} geom data
   /-- The reconstruction algorithm. -/
   algorithm : Profunctor.{u + 1} data geom

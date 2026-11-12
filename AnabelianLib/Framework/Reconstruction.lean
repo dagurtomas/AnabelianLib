@@ -62,7 +62,7 @@ the other direction, and `target` is the geometric profunctor being reconstructe
 identity).
 -/
 structure ProfunctorReconstruction
-    (geom : Type (u + 1)) (data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
+    (geom data : Type (u + 1)) [Category.{u} geom] [Category.{u} data] where
   /-- The invariant of geometric objects, allowing indeterminacy. -/
   invariant : Profunctor.{u + 1} geom data
   /-- The geometric profunctor being reconstructed. -/
